@@ -1,0 +1,109 @@
+/************************************************************************************************************************************/
+    for( i = 0 ; i < source_file.length() ; i++ ){
+            if ( (source_file[i] == '<') && ( (source_file[i+1] == '?') || (source_file[i+1] == '!') ) )
+            {
+                error_occure = 0 ;
+                continue ;
+            }
+            if ( (source_file[i] == '<') && ( ( source_file[i+1] != '?') || ( source_file[i+1] != '!' ) ) )
+            {
+
+                if( ( source_file[i] == '<') && (source_file[i+1] != '/') )  /************opening tag***********/
+                    {
+                            for( int j = i+1 ; ( source_file[j] != '>' ) ;j++ ){
+                                temp1 += source_file[j] ;
+                            }
+                            /*********self closing*****/
+                            int temp1_len = temp1.length() ;
+                            if ( temp1[temp1_len - 1] != '/' )
+                            {
+                                        st.push(temp1) ;
+                                        temp1 = "" ;
+                                        continue ;
+                            }
+                            else if ( temp1[temp1_len - 1] == '/' )
+                            {
+                                QString temp1_update = sub( temp1 , 0 , temp1_len - 1 ) ;
+                                temp1_update = "" ;
+                                temp1 = "" ;
+                                error_occure = false ;
+                                continue ;
+                            }
+
+                }
+                /****************/
+                if ( ( source_file[i] == '<' ) && ( source_file[i+1] == '/' ) )    /*****************closing tag**************/
+                    {
+                            if ( st.isEmpty() )
+                            {
+
+                    /***************************************************************************************************************************************/
+                                error_occure = true ;
+                                break ;
+                            }
+                            else if ( !st.isEmpty() )
+                            {
+                            for( j = i+2 ; source_file[j] != '>' ;j++ ){
+                                temp2 += source_file[j] ;
+
+                            }
+                            QString k = st.top() , k_update ;
+                            int k_len = k.length() ;
+                                          if( k == temp2 ) {
+                                              temp2 = "" ;
+                                              st.pop() ;
+                                              error_occure = false ;
+                                          }
+                                          if( k != temp2 )
+                                          { //in case opening tag has attribute
+                                               for ( int n = 0 ; n < k_len ; n++ )
+                                                {
+                                                    if( k[n] == ' ' )
+                                                        {
+                                                            k_update = sub( k , 0, n - 1 ) ;
+                                                            if( k_update == temp2 )
+                                                            {
+                                                                st.pop() ;
+                                                                error_occure = false ;
+                                                                k_update = "" ;
+                                                                temp2 = "" ;
+
+                                                                break ;
+                                                            }
+                                                            if ( k_update != temp2 ) {
+                                                                error_occure = true ;
+                                                                break ;
+                                                            }
+
+                                                        }
+                                                }
+                                        }
+                                 }
+
+            }
+        }
+
+    }
+
+            if (error_occure == false)
+            {
+                if( !st.isEmpty() )
+                {
+                    QMessageBox msgBox;
+                    msgBox.setText("The file has error stack not empty");
+                    msgBox.exec();
+                }
+                else
+                {
+                    QMessageBox msgBox;
+                    msgBox.setText("The file has no error");
+                    msgBox.exec();
+                }
+            }
+            else if (error_occure == true)
+            {
+                QMessageBox msgBox;
+                msgBox.setText("The file has error");
+                msgBox.exec();
+
+            }
